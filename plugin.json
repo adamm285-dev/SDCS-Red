@@ -1,0 +1,19 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "sdcs-red",
+  "displayName": "SDCS Red (First-Principles Adversarial Code Auditor)",
+  "version": "1.0.0",
+  "description": "Cold-context adversarial code auditor pairing deterministic AST/polyglot pre-scanning (red_prescan.py), diff-scoped mutation testing (mutate_diff.py), baseline-fail proofs (prove_diff.py), and a mandatory 7-bucket refutation matrix.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "Run an SDCS Red Mode 1 7-bucket adversarial audit on the current git diff",
+    "Double-check your work with sdcs-red including diff-scoped mutation testing and baseline-fail proofs",
+    "Run a cross-model adversarial review with Claude on the current changes"
+  ],
+  "author": {
+    "name": "Adam Murphy",
+    "url": "https://github.com/adamm285-dev"
+  },
+  "homepage": "https://github.com/adamm285-dev/SDCS-Red",
+  "repository": "https://github.com/adamm285-dev/SDCS-Red"
+}
