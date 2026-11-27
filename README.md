@@ -1,40 +1,79 @@
-# `sdcs-red`: Dual-Mode Adversarial Code Audit Kit for AI Agents
+<div align="center">
 
-`sdcs-red` is a dual-mode adversarial code review and verification engine designed for autonomous coding agents (Antigravity, Claude Code, Codex, and Cursor). It pairs deterministic polyglot AST pre-scanning with cold-context read-only refutation across a mandatory 7-bucket attack matrix.
+# 🔴 SDCS_Red
+
+### *Dual-Mode Adversarial Code Review & AST Verification Engine for AI Agents*
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Zero-Read Pre-Scan](https://img.shields.io/badge/Pre--Scan-Sub--Second%20AST-orange.svg)]()
+[![Polyglot Coverage](https://img.shields.io/badge/Polyglot-12%2B%20Languages-success.svg)]()
+[![Agents: Antigravity | Claude | Cursor](https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor-purple.svg)]()
+
+<br/>
+
+**Stop polite, agreeable code reviews from approving broken software.**  
+SDCS_Red pairs deterministic polyglot AST pre-scanning with cold-context adversarial refutation across a mandatory 7-bucket attack matrix.
+
+<br/>
+
+[Key Features](#key-features) •
+[Why SDCS_Red](#why-sdcs_red-exists) •
+[Dual Modes](#architectural-modes) •
+[The 7 Buckets](#the-7-mandatory-attack-buckets) •
+[Polyglot Matrix](#polyglot-engine-coverage) •
+[Verification Receipt](#verification-receipt-contract) •
+[Quick Start](#quick-start)
 
 ---
 
-## Why `sdcs-red` Exists
+</div>
 
-Polite, agreeable code reviews miss subtle runtime failures, silent fallbacks, and boundary traps. LLM agents reviewing their own or peers' implementations suffer from positive confirmation bias: if the diff looks clean on paper, they assume it works.
+<br/>
 
-`sdcs-red` enforces an adversarial refutation posture:
-1. **Separation of Concerns:** The auditor runs in a fresh, read-only subagent context with no author rationale or commit justifications.
+## 🎯 Key Features
+
+<div align="center">
+
+| ⚡ Deterministic Pre-Scan | 🧊 Cold-Context Isolation | 🧬 Mutation Verification | 🛡️ Polyglot Traps |
+| :---: | :---: | :---: | :---: |
+| Sub-second AST scan runs offline before LLM context is loaded. | Reviewer agent operates cold with zero author rationale. | Injects mutations to test if test suites actually catch bugs. | Catches shell `eval`, batch expansion, Swift unwraps, etc. |
+
+</div>
+
+---
+
+## 💡 Why SDCS_Red Exists
+
+> **The Polite Agent Trap:** Coding agents reviewing their own or peer code naturally suffer from confirmation bias. If the diff looks clean on paper, they assume it works in runtime.
+
+SDCS_Red enforces an uncompromising refutation posture:
+
+1. **Cold-Context Separation:** The auditor runs in a fresh, read-only subagent context with no author rationale or commit justifications.
 2. **Deterministic Pre-Scanning:** `red_prescan.py` runs offline in sub-second time, flagging hollow stubs, shadowing, unbounded networks, shell injection risks, and polyglot traps before the model even reads the diff.
-3. **Mandatory 7-Bucket Matrix:** The review cannot terminate early after discovering two or three surface defects. All seven failure modes must be explicitly audited or accounted for.
+3. **Mandatory 7-Bucket Matrix:** The review cannot terminate early after finding two or three surface defects. All seven failure modes must be explicitly audited or accounted for.
 4. **Hard-Failing Negative Control Probes:** Claims of vulnerabilities or regressions must be proved using non-zero exit code reproduction scripts (`Broke it`), preventing silent-null or false-positive assertions.
 5. **Mutation Verification:** `mutate_diff.py` deliberately injects boundary inversions and operator mutations to prove whether existing unit tests are rigorous enough to catch regressions.
 
 ---
 
-## Architectural Modes
+## 🔄 Architectural Modes
 
 ### Mode 1: Self-Audit & Pre-Flight Review (Single-Agent / Subagent)
-Triggered whenever asking for a pre-commit audit, "double-check your work", or "run another round":
+*Triggered on "double-check your work", "pre-flight check", or "sdcs-red":*
 - Auto-scopes using `git diff` against `HEAD` or target branch.
 - Deterministic pre-scan flags hot spots and AST hazards.
 - Cold subagent audits the scoped diff against all 7 buckets.
 - Produces a structured **Verification Receipt** with `Checked:`, `Broke it:`, and `Not checked:`.
 
 ### Mode 2: Adversarial Multi-Agent Waves (Red Team vs. Author)
-Triggered for high-stakes refactoring, security reviews, or multi-turn agent challenges:
+*Triggered on "adversarial review with Claude" or high-stakes refactoring:*
 - **Wave 1 (Red Attack):** Read-only red agent explores diff, writes hard-failing repro probes, and submits findings.
 - **Wave 2 (Author Remediation):** Author agent fixes true positives, proves fixes with tests, and adds rejection lessons.
 - **Wave 3 (Verification & Mutation):** Red agent re-runs hard probes to confirm fixes, runs `mutate_diff.py`, and signs off.
 
 ---
 
-## The 7 Mandatory Attack Buckets
+## 🥊 The 7 Mandatory Attack Buckets
 
 Every audit pass must inspect each of the following buckets:
 
@@ -50,39 +89,22 @@ Every audit pass must inspect each of the following buckets:
 
 ---
 
-## Comprehensive Polyglot Engine
+## 🌐 Polyglot Engine Coverage
 
-`red_prescan.py` supports deterministic static analysis across diverse languages and runtimes:
-
-- **Python:** Full AST inspection (`ast.parse`), parameter shadowing, unused argument detection, loop-nested compilation, loose MCP tool schemas (`**kwargs`, untyped dicts).
-- **Apple & Xcode:** Swift, Objective-C, Objective-C++ (`.swift`, `.m`, `.mm`). Detects empty `func` stubs, chained force-unwraps (`!`) causing `fatalError` nil crashes.
-- **JVM Languages:** Java, Kotlin, Scala (`.java`, `.kt`, `.kts`, `.scala`). Detects empty methods and unhandled exceptions.
-- **Systems Languages:** C, C++, CUDA (`.c`, `.cpp`, `.cu`), Zig (`.zig`), Nim (`.nim`), Rust (`.rs`), Go (`.go`). Detects `todo!()` macros and nanobind/pybind missing `None` argument guards.
-- **Web & Scripting:** TypeScript/JavaScript (`.ts`, `.tsx`, `.js`), Dart (`.dart`), Ruby (`.rb`), PHP (`.php`). Detects dynamic `eval` injection and empty callbacks.
-- **Shell & Batch:** Bash/Zsh (`.sh`), Windows Batch (`.bat`), PowerShell (`.ps1`). Detects `EnableDelayedExpansion` exclamation mark loss, `if errorlevel` ordering traps, and `Read-Host` non-interactive hangs.
-
----
-
-## Repository Structure
+`red_prescan.py` runs deterministic static analysis across diverse languages and runtimes:
 
 ```
-sdcs-red/
-├── pyproject.toml              # Build & test configuration (zero runtime dependencies)
-├── README.md                   # Complete skill & toolchain documentation
-├── SKILL.md                    # Core Antigravity / Claude skill specification
-├── references/
-│   └── attack_matrix.md        # Comprehensive 7-bucket audit guidance & examples
-├── scripts/
-│   ├── red_prescan.py          # Deterministic polyglot pre-scanner with git-diff auto-scoping
-│   ├── mutate_diff.py          # Mutation testing runner for verifying test rigor
-│   └── prove_diff.py           # Hard-assertion negative control verification helper
-└── tests/
-    └── test_sdcs_red.py        # Comprehensive test suite (32 tests covering all engines)
+├── Python              Full AST inspection, parameter shadowing, unused argument detection, loop regex compilation
+├── Apple & Xcode       Swift (.swift), Objective-C (.m, .mm) — empty funcs, chained force-unwraps (!)
+├── JVM Languages       Java (.java), Kotlin (.kt, .kts), Scala (.scala) — empty methods, exception swallowing
+├── Systems Languages   C/C++/CUDA (.c, .cpp, .cu), Zig (.zig), Nim (.nim), Rust (.rs), Go (.go) — todo!() macros
+├── Web & Scripting     TypeScript/JavaScript (.ts, .tsx, .js), Dart (.dart), Ruby (.rb), PHP (.php) — eval injection
+└── Shell & Batch       Bash/Zsh (.sh), Windows Batch (.bat), PowerShell (.ps1) — DelayedExpansion, errorlevel
 ```
 
 ---
 
-## Verification Receipt Contract
+## 📜 Verification Receipt Contract
 
 Every audit concludes with an unambiguous, human-verifiable receipt:
 
@@ -93,35 +115,34 @@ Every audit concludes with an unambiguous, human-verifiable receipt:
 - Not checked: [Explicit list of in-scope files not read or scanned during this pass]
 ```
 
-### The No-Silent-Null Rule
+### ⚠️ The No-Silent-Null Rule
 Reproduction probes in `Broke it:` must use hard-failing assertions (`assert`, `pytest.raises`, `process.exit(1)`). Diagnostic scripts that merely print output while exiting with code 0 are strictly rejected.
 
 ---
 
-## Installation & Usage
+## 🚀 Quick Start
 
-### Running Locally
-To test and run the static analyzer directly:
+### Direct CLI Analysis
 ```bash
+# Scan full repository offline (JSON output)
 python scripts/red_prescan.py --repo-root . --json
-```
 
-To run against a git diff:
-```bash
+# Auto-scope against git diff
 python scripts/red_prescan.py --git-diff HEAD~1 --compact
+
+# Run mutation tester on modified lines
+python scripts/mutate_diff.py --git-diff HEAD~1
 ```
 
-To run unit tests:
-```bash
-pytest tests/test_sdcs_red.py -v
-```
-
-### Installing into AI Agent Environments
+### Install into AI Agent Environments
 - **Antigravity / Gemini CLI:** Copy `sdcs-red/` into `~/.gemini/config/skills/sdcs-red/`.
 - **Claude Code / Cursor:** Copy `sdcs-red/` into your workspace `.agents/skills/sdcs-red/` or `skills/sdcs-red/`.
 
 ---
 
-## License
+<div align="center">
 
-MIT License. Designed and maintained as part of the SDCS ecosystem.
+Part of the **Spec-Driven Cognitive Scaffolding (SDCS)** ecosystem.  
+*Engineered for high-assurance autonomous development.*
+
+</div>
