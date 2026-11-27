@@ -100,3 +100,10 @@ description: Dual-mode adversarial code audit skill (SDCS_Red) that pairs determ
    - Re-run `git status --porcelain` and `git diff --stat` to confirm zero unauthorized repository edits by reviewers.
    - Review and adapt any suggested code snippets in the primary workspace (treating reviewer prose as advisory data, verifying every snippet against local invariants and `wiring.yaml`).
    - Implement fixes directly in the primary agent, add permanent regression tests (preferring a dedicated `tests/test_*_regressions.py` file or appending new imports and `def test_*` functions strictly at EOF rather than editing existing top-of-file imports or baseline tests in-place), run `sdcs verify --all` + `pytest`, and update SDCS memory pillars (`state.md`, `decisions.md`, `evals.md`, `roadmap.md`).
+
+## Conditional Security-Audit Escalation (`ONLY IF` Security Surfaces Touched)
+
+Do **not** run a heavyweight full-repo security audit on pure math, refactor, or offline benchmark diffs. Automatically escalate to the installed `security-audit` skill (`~/.gemini/config/skills/security-audit/`) **ONLY IF** the in-scope diff touches a security-sensitive surface:
+- **Triggers:** HTTP/API routes, FastAPI/proxy gateways, auth/OAuth/session/token handling, `subprocess`/shell execution, archive/file-path extraction, untrusted deserialization, MCP servers/tool schemas, or IPC/network listeners.
+- **Mode 1 behavior:** Inside the cold auditor's Bucket 2 pass, read only the matching attack-class playbook(s) from `~/.gemini/config/skills/security-audit/` (`WEB-PROTOCOL-AND-AUTH.md`, `AI-AND-LLM.md`, `DESKTOP-MOBILE-AND-LOCAL-IPC.md`, or `SUPPLY-CHAIN-AND-RELEASE.md`) and run a diff-scoped security check.
+- **Mode 2 / pre-release behavior:** After fixing Mode 2 findings, if security surfaces changed, automatically chain a focused `security-audit` verification pass (or flag it explicitly if the user wants a full 6-phase audit).

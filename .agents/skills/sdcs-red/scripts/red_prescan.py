@@ -142,6 +142,14 @@ _HIGH_PRIORITY_FALLBACK_EXCEPTIONS = frozenset(
 _PRIORITY_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 _HIGH_HAZARD_KINDS = frozenset({"shell_injection_risk", "subprocess_call", "recursive_walk", "sleep_call", "unbounded_http_call"})
 
+_TOOL_POISON_INSTRUCTION_RE = re.compile(
+    r"(?i)\b(?:always\s+(?:forward|send|pass|include|exfiltrate|leak|override|ignore)|"
+    r"do\s+not\s+(?:validate|check|sanitize|enforce|block)|"
+    r"ignore\s+(?:previous|all|safety|guardrail|rule)|"
+    r"bypass\s+(?:auth|token|permission|gate|approval)|"
+    r"system\s+prompt\s+override|"
+    r"from\s+now\s+on\s+always)\b"
+)
 _POLYGLOT_EMPTY_JS_RE = re.compile(
     r"(?ms)\b(?:async\s+)?function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\([^)]*\)\s*(?::\s*[^\{;\n]+)?\{\s*\}"
 )
@@ -990,6 +998,19 @@ def _scan_function_details(
                 "detail": f"entrypoint or tool surface with {len(_all_param_names(fn.args))} parameter(s)",
             }
         )
+        # Check for tool docstring prompt injection / instruction poisoning (AIGoat MCP03)
+        doc = ast.get_docstring(fn)
+        if doc and _TOOL_POISON_INSTRUCTION_RE.search(doc):
+            sharp_edges.append(
+                {
+                    "file": rel_file,
+                    "line": fn.lineno,
+                    "kind": "mcp_tool_poisoning",
+                    "symbol": qualname,
+                    "detail": "tool docstring contains instruction poisoning keywords (prompt-injection / override risk)",
+                }
+            )
+
         # Check for untyped or loose parameter annotations (AutoMalTool MCP confused deputy risk)
         for arg in fn.args.args + fn.args.kwonlyargs:
             if arg.arg in {"self", "cls"}:
